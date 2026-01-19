@@ -6,6 +6,8 @@ namespace GBPowerLevel.GuildBattles
 {
     public class GuildBattle19
     {
+        public double SummonMaxLevel { get { return 10; } }
+
         public DateTime Timestamp { get; set; }
         public string In_GameName { get; set; }
         public string YourGuild { get; set; }
@@ -313,7 +315,7 @@ namespace GBPowerLevel.GuildBattles
             if (string.IsNullOrEmpty(esLevel))
                 return 0.0;
 
-            return double.Parse(esLevel) / 10.0;
+            return double.Parse(esLevel) / 20.0;
         }
 
         public double GetSupportMultipler()
@@ -324,11 +326,43 @@ namespace GBPowerLevel.GuildBattles
 
             if (red == 0 || cait == 0)
             {
-                support += CrimsonStaff.GetMultipler(0.2, 0.3, 0.4);
-                support += FloralWand.GetMultipler(0.1, 0.2, 0.3);
             }
 
-            return red + cait + support;
+            return Math.Round(red + cait + support, 2);
+        }
+
+        public string GetSupportModifierDetails()
+        {
+            var output = new StringBuilder();
+            var red = RedMultiplier();
+            var cait = CaitMultiplier();
+            var aerith = AerithMultiplier();
+
+            if (red > 0)
+            {
+                if (output.Length > 0)
+                    output.Append("; ");
+
+                output.Append($"Red: {Math.Round(red, 2)}");
+            }
+
+            if (cait > 0)
+            {
+                if (output.Length > 0)
+                    output.Append("; ");
+
+                output.Append($"Cait: {Math.Round(cait, 2)}");
+            }
+
+            if (red == 0 || cait == 0)
+            {
+                if (output.Length > 0)
+                    output.Append("; ");
+
+                output.Append($"Aerith: {Math.Round(aerith, 2)}");
+            }
+
+            return output.ToString();
         }
 
         public double RedMultiplier()
@@ -336,7 +370,7 @@ namespace GBPowerLevel.GuildBattles
             double multiplier = 0;
 
             multiplier += PirateCollar.GetMultipler(0.1, 0.2, 0.4);
-            multiplier += BrilliantCollar.GetMultipler(0.1, 0.4, 0.6);
+            multiplier += BrilliantCollar.GetMultipler(0.1, 0.4, 0.5);
 
             var weaponCount = 0;
 
@@ -350,7 +384,7 @@ namespace GBPowerLevel.GuildBattles
             {
                 if (SilverCollar.IsOwned())
                 {
-                    multiplier += SilverCollar.GetMultipler(0.1, 0.2, 0.3);
+                    multiplier += SilverCollar.GetMultipler(0.05, 0.1, 0.15);
                     weaponCount++;
                 }
             }
@@ -359,7 +393,7 @@ namespace GBPowerLevel.GuildBattles
             {
                 if (CanyonCollar.IsOwned())
                 {
-                    multiplier += CanyonCollar.GetMultipler(0.1, 0.2, 0.3);
+                    multiplier += CanyonCollar.GetMultipler(0.05, 0.1, 0.15);
                     weaponCount++;
                 }
             }
@@ -381,8 +415,8 @@ namespace GBPowerLevel.GuildBattles
         {
             double multiplier = 0;
 
-            multiplier += NocturneHorn.GetMultipler(0.2, 0.4, 0.6);
-            multiplier += CoolCatsMegaphone.GetMultipler(0.2, 0.4, 0.6);
+            multiplier += NocturneHorn.GetMultipler(0.2, 0.4, 0.5);
+            multiplier += CoolCatsMegaphone.GetMultipler(0.2, 0.4, 0.5);
 
             if (HPShout.IsOwned())
             {
@@ -393,6 +427,16 @@ namespace GBPowerLevel.GuildBattles
             {
                 multiplier += 0.2;
             }
+
+            return multiplier;
+        }
+
+        public double AerithMultiplier()
+        {
+            double multiplier = 0;
+
+            multiplier += CrimsonStaff.GetMultipler(0.2, 0.3, 0.4);
+            multiplier += FloralWand.GetMultipler(0.1, 0.2, 0.3);
 
             return multiplier;
         }
