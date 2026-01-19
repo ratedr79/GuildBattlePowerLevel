@@ -133,7 +133,7 @@ namespace GBPowerLevel.GuildBattles
                 multiplier += 0.3;
             }
 
-            multiplier += HolidayBell.GetMultipler(0.2, 0.4, 0.6);
+            multiplier += HolidayBell.GetMultipler(0.1, 0.3, 0.4);
 
             if (HeirloomBrush.IsOwned() && LimitedMoon.IsOwned())
             {
@@ -147,7 +147,7 @@ namespace GBPowerLevel.GuildBattles
                 }
                 else
                 {
-                    multiplier += RockersGuitar.GetMultipler(0.1, 0.2, 0.3);
+                    multiplier += RockersGuitar.GetMultipler(0.075, 0.125, 0.2);
                 }
             }
 
@@ -318,48 +318,45 @@ namespace GBPowerLevel.GuildBattles
             return double.Parse(esLevel) / 20.0;
         }
 
+        public List<DPSPowerLevel> SupportPowerLevels()
+        {
+            var dpsPowerLevels = new List<DPSPowerLevel>()
+            {
+                new DPSPowerLevel() {
+                    Character = "Red",
+                    PowerLevel = RedMultiplier()
+                },
+                new DPSPowerLevel() {
+                    Character = "Cait",
+                    PowerLevel = CaitMultiplier(),
+                },
+                new DPSPowerLevel() {
+                    Character = "Aerith",
+                    PowerLevel = AerithMultiplier()
+                }
+            };
+
+            return dpsPowerLevels;
+        }
+
         public double GetSupportMultipler()
         {
-            double support = 0;
-            var red = RedMultiplier();
-            var cait = CaitMultiplier();
+            var supports = SupportPowerLevels().OrderByDescending(p => p.PowerLevel).Take(2).ToList();
 
-            if (red == 0 || cait == 0)
-            {
-            }
-
-            return Math.Round(red + cait + support, 2);
+            return Math.Round(supports.Sum(p => p.PowerLevel), 2);
         }
 
         public string GetSupportModifierDetails()
         {
             var output = new StringBuilder();
-            var red = RedMultiplier();
-            var cait = CaitMultiplier();
-            var aerith = AerithMultiplier();
+            var supports = SupportPowerLevels();
 
-            if (red > 0)
+            foreach(var support in supports)
             {
                 if (output.Length > 0)
                     output.Append("; ");
 
-                output.Append($"Red: {Math.Round(red, 2)}");
-            }
-
-            if (cait > 0)
-            {
-                if (output.Length > 0)
-                    output.Append("; ");
-
-                output.Append($"Cait: {Math.Round(cait, 2)}");
-            }
-
-            if (red == 0 || cait == 0)
-            {
-                if (output.Length > 0)
-                    output.Append("; ");
-
-                output.Append($"Aerith: {Math.Round(aerith, 2)}");
+                output.Append($"{support.Character}: {Math.Round(support.PowerLevel, 2)}");
             }
 
             return output.ToString();
@@ -384,7 +381,7 @@ namespace GBPowerLevel.GuildBattles
             {
                 if (SilverCollar.IsOwned())
                 {
-                    multiplier += SilverCollar.GetMultipler(0.05, 0.1, 0.15);
+                    multiplier += SilverCollar.GetMultipler(0.05, 0.08, 0.1);
                     weaponCount++;
                 }
             }
@@ -393,14 +390,14 @@ namespace GBPowerLevel.GuildBattles
             {
                 if (CanyonCollar.IsOwned())
                 {
-                    multiplier += CanyonCollar.GetMultipler(0.05, 0.1, 0.15);
+                    multiplier += CanyonCollar.GetMultipler(0.025, 0.05, 0.06);
                     weaponCount++;
                 }
             }
 
             if (LimitedMoon.IsOwned())
             {
-                multiplier += 0.5;
+                multiplier += 0.4;
             }
 
             if (PirateNavigator.IsOwned())
@@ -415,12 +412,12 @@ namespace GBPowerLevel.GuildBattles
         {
             double multiplier = 0;
 
-            multiplier += NocturneHorn.GetMultipler(0.2, 0.4, 0.5);
-            multiplier += CoolCatsMegaphone.GetMultipler(0.2, 0.4, 0.5);
+            multiplier += NocturneHorn.GetMultipler(0.1, 0.3, 0.4);
+            multiplier += CoolCatsMegaphone.GetMultipler(0.1, 0.2, 0.25);
 
             if (HPShout.IsOwned())
             {
-                multiplier += 0.4;
+                multiplier += 0.25;
             }
 
             if (NocturneJacket.IsOwned())
@@ -435,8 +432,8 @@ namespace GBPowerLevel.GuildBattles
         {
             double multiplier = 0;
 
-            multiplier += CrimsonStaff.GetMultipler(0.2, 0.3, 0.4);
-            multiplier += FloralWand.GetMultipler(0.1, 0.2, 0.3);
+            multiplier += CrimsonStaff.GetMultipler(0.1, 0.25, 0.3);
+            multiplier += FloralWand.GetMultipler(0.05, 0.075, 0.1);
 
             return multiplier;
         }
