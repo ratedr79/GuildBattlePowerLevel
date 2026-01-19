@@ -39,19 +39,27 @@ namespace GBPowerLevel
                         var detail = $"{record.In_GameName}: {record.HighestPowerDPS()} (Yuffie: {record.YuffiePowerLevel()}; Cloud: {record.CloudPowerLevel()}; Sephiroth: {record.SephirothPowerLevel()})";
                         Console.WriteLine(detail);
 
+                        var highestDPS = record.HighestPowerDPS();
+
                         playerPowerLevels.Add(new PlayerPowerLevel()
                         {
                             InGameName = record.In_GameName,
-                            PowerLevel = record.HighestPowerDPS()
+                            PowerLevel = Math.Round(highestDPS.PowerLevel, 2),
+                            Character = highestDPS.Character,
+                            OtherCharacters = record.OtherDPSFormatted(),
+                            CurrentGuild = record.YourGuild
                         });
                     }
 
                     Console.WriteLine("");
                     Console.WriteLine("Sorted Players by Power Level");
 
+                    var counter = 1;
+
                     foreach(var player in playerPowerLevels.OrderByDescending(l => l.PowerLevel))
                     {
-                        Console.WriteLine($"{player.InGameName}: {player.PowerLevel}");
+                        Console.WriteLine($"{counter}: {player.InGameName} ({player.CurrentGuild}); Power: {player.PowerLevel} ({player.Character}); Other DPS: {player.OtherCharacters}");
+                        counter++;
                     }
                 }
             }

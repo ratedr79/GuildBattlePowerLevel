@@ -1,5 +1,6 @@
 ﻿using CsvHelper.Configuration;
 using GBPowerLevel.Extensions;
+using System.Text;
 
 namespace GBPowerLevel.GuildBattles
 {
@@ -51,7 +52,7 @@ namespace GBPowerLevel.GuildBattles
 
         public double CloudPowerLevel()
         {
-            double characterLevel = 200.0;
+            double characterLevel = 250.0;
 
             if (HolidayOutfit.IsOwned())
             {
@@ -75,15 +76,15 @@ namespace GBPowerLevel.GuildBattles
                 multiplier += 0.5;
             }
 
-            multiplier += FusionSword.GetMultipler(0.2, 0.4, 0.6);
-            multiplier += HolidayBlade.GetMultipler(0.4, 0.6, 0.8);
+            multiplier += FusionSword.GetMultipler(0.2, 0.5, 0.7);
+            multiplier += HolidayBlade.GetMultipler(0.3, 0.5, 0.9);
 
             return characterLevel * (multiplier + 1);
         }
 
         public double YuffiePowerLevel()
         {
-            double characterLevel = 100.0;
+            double characterLevel = 200.0;
 
             if (HeirloomKimono.IsOwned())
             {
@@ -100,9 +101,23 @@ namespace GBPowerLevel.GuildBattles
                 characterLevel += 150;
             }
 
-            if (SparklingSkater.IsOwned())
+            var outfitCount = 0;
+
+            if (HolidayCheerReindeer.IsOwned())
+                outfitCount++;
+
+            if (SaviorEnsemble.IsOwned())
+                outfitCount++;
+
+            if (HeirloomKimono.IsOwned())
+                outfitCount++;
+
+            if (outfitCount < 3)
             {
-                characterLevel += 100;
+                if (SparklingSkater.IsOwned())
+                {
+                    characterLevel += 100;
+                }
             }
 
             double multiplier = BaseMultipler();
@@ -117,29 +132,33 @@ namespace GBPowerLevel.GuildBattles
             }
 
             multiplier += HolidayBell.GetMultipler(0.2, 0.4, 0.6);
-            multiplier += HeirloomBrush.GetMultipler(0.1, 0.2, 0.4);
-            multiplier += RockersGuitar.GetMultipler(0.1, 0.2, 0.3);
+
+            if (HeirloomBrush.IsOwned() && LimitedMoon.IsOwned())
+            {
+                multiplier += HeirloomBrush.GetMultipler(0.1, 0.25, 0.5);
+            }
+            else
+            {
+                if (LimitedMoon.IsOwned())
+                {
+                    multiplier += RockersGuitar.GetMultipler(0.05, 0.1, 0.15);
+                }
+                else
+                {
+                    multiplier += RockersGuitar.GetMultipler(0.1, 0.2, 0.3);
+                }
+            }
 
             return characterLevel * (multiplier + 1);
         }
 
         public double SephirothPowerLevel()
         {
-            double characterLevel = 300.0;
+            double characterLevel = 250.0;
 
             if (GarboftheWorld_Ender.IsOwned())
             {
                 characterLevel += 100;
-            }
-
-            if (ShinraFormalUniform.IsOwned())
-            {
-                characterLevel += 50;
-            }
-
-            if (DarkHarbinger.IsOwned())
-            {
-                characterLevel += 50;
             }
 
             if (CapeoftheWorthy.IsOwned())
@@ -152,6 +171,34 @@ namespace GBPowerLevel.GuildBattles
                 characterLevel += 250;
             }
 
+            var outfitCount = 0;
+
+            if (GarboftheWorld_Ender.IsOwned())
+                outfitCount++;
+
+            if (CapeoftheWorthy.IsOwned())
+                outfitCount++;
+
+            if (CustomSuit.IsOwned())
+                outfitCount++;
+
+            if (outfitCount < 3)
+            {
+                if (ShinraFormalUniform.IsOwned())
+                {
+                    characterLevel += 30;
+                    outfitCount++;
+                }
+            }
+
+            if (outfitCount < 3)
+            {
+                if (DarkHarbinger.IsOwned())
+                {
+                    characterLevel += 30;
+                }
+            }
+
             double multiplier = BaseMultipler();
 
             if (GenjiBlade.IsOwned())
@@ -159,28 +206,84 @@ namespace GBPowerLevel.GuildBattles
                 multiplier += 0.3;
             }
 
-            multiplier += SerratedRemiges.GetMultipler(0.2, 0.4, 0.8);
-            multiplier += BladeoftheWorthy.GetMultipler(0.2, 0.3, 0.4);
-            multiplier += PhoenixOdachi.GetMultipler(0.2, 0.4, 0.8);
+            multiplier += SerratedRemiges.GetMultipler(0.3, 0.6, 1.0);
+
+            if (PhoenixOdachi.IsOwned() && LimitedMoon.IsOwned())
+            {
+                multiplier += PhoenixOdachi.GetMultipler(0.08, 0.5, 0.9);
+            }
+            else
+            {
+                if (LimitedMoon.IsOwned())
+                {
+                    multiplier += BladeoftheWorthy.GetMultipler(0.05, 0.1, 0.15);
+                }
+                else
+                {
+                    multiplier += BladeoftheWorthy.GetMultipler(0.1, 0.2, 0.3);
+                }
+            }
 
             return characterLevel * (multiplier + 1);
         }
 
-        public double HighestPowerDPS()
+        public List<DPSPowerLevel> DPSPowerLevels()
         {
-            List<double> dpsPowerLevels = new List<double>()
-            { 
-                CloudPowerLevel(),
-                SephirothPowerLevel(),
-                YuffiePowerLevel()
+            var dpsPowerLevels = new List<DPSPowerLevel>()
+            {
+                new DPSPowerLevel() {
+                    Character = "Cloud",
+                    PowerLevel = CloudPowerLevel()
+                },
+                new DPSPowerLevel() {
+                    Character = "Sephiroth",
+                    PowerLevel = SephirothPowerLevel(),
+                },
+                new DPSPowerLevel() {
+                    Character = "Yuffie",
+                    PowerLevel = YuffiePowerLevel()
+                }
             };
 
-            return dpsPowerLevels.Max();
+            return dpsPowerLevels;
+        }
+
+        public DPSPowerLevel HighestPowerDPS()
+        {
+            var topDPS = DPSPowerLevels().OrderByDescending(p => p.PowerLevel).FirstOrDefault();
+
+            return topDPS ?? new DPSPowerLevel()
+            {
+                Character = "UNKNOWNN",
+                PowerLevel = 0
+            };
+        }
+
+        public List<DPSPowerLevel> OtherDPS()
+        {
+            return DPSPowerLevels().OrderByDescending(p => p.PowerLevel).Skip(1).ToList();
+        }
+
+        public string OtherDPSFormatted()
+        {
+            var output = new StringBuilder();
+
+            foreach(var dps in OtherDPS())
+            {
+                if (output.Length > 0)
+                {
+                    output.Append(", ");
+                }
+
+                output.Append($"{dps.Character} {Math.Round(dps.PowerLevel, 2)}");
+            }
+
+            return output.ToString();
         }
 
         public double BaseMultipler()
         {
-            return SummonMultiplier() + EnemySkillMultiplier() + MemoriaMultiplier() + RedMultiplier() + CaitMultiplier();
+            return SummonMultiplier() + EnemySkillMultiplier() + MemoriaMultiplier() + GetSupportMultipler();
         }
 
         public double SummonMultiplier()
@@ -213,6 +316,21 @@ namespace GBPowerLevel.GuildBattles
             return double.Parse(esLevel) / 10.0;
         }
 
+        public double GetSupportMultipler()
+        {
+            double support = 0;
+            var red = RedMultiplier();
+            var cait = CaitMultiplier();
+
+            if (red == 0 || cait == 0)
+            {
+                support += CrimsonStaff.GetMultipler(0.2, 0.3, 0.4);
+                support += FloralWand.GetMultipler(0.1, 0.2, 0.3);
+            }
+
+            return red + cait + support;
+        }
+
         public double RedMultiplier()
         {
             double multiplier = 0;
@@ -220,13 +338,30 @@ namespace GBPowerLevel.GuildBattles
             multiplier += PirateCollar.GetMultipler(0.1, 0.2, 0.4);
             multiplier += BrilliantCollar.GetMultipler(0.1, 0.4, 0.6);
 
-            var hasPirateCollar = PirateCollar.IsOwned();
-            var hasBrilliantCollar = BrilliantCollar.IsOwned();
+            var weaponCount = 0;
 
-            if (!hasBrilliantCollar || !hasPirateCollar)
+            if (PirateCollar.IsOwned())
+                weaponCount++;
+
+            if (BrilliantCollar.IsOwned())
+                weaponCount++;
+
+            if (weaponCount < 2)
             {
-                multiplier += SilverCollar.GetMultipler(0.1, 0.2, 0.3);
-                multiplier += CanyonCollar.GetMultipler(0.1, 0.2, 0.3);
+                if (SilverCollar.IsOwned())
+                {
+                    multiplier += SilverCollar.GetMultipler(0.1, 0.2, 0.3);
+                    weaponCount++;
+                }
+            }
+
+            if (weaponCount < 2)
+            {
+                if (CanyonCollar.IsOwned())
+                {
+                    multiplier += CanyonCollar.GetMultipler(0.1, 0.2, 0.3);
+                    weaponCount++;
+                }
             }
 
             if (LimitedMoon.IsOwned())

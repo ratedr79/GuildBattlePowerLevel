@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace GBPowerLevel
 {
-    public class PlayerPowerLevel
+    public class DPSPowerLevel
     {
-        public string InGameName { get; set; }
+        [Required]
         public string Character { get; set; }
         public double PowerLevel { get; set; }
-        public string OtherCharacters { get; set; }
-        public string CurrentGuild { get; set; }
     }
 }
