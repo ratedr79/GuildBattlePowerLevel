@@ -64,10 +64,10 @@ namespace GBPowerLevel
                     foreach(var player in playerPowerLevels.OrderByDescending(l => l.PowerLevel))
                     {
                         Console.WriteLine($"{counter}: {player.InGameName} ({player.CurrentGuild}) - {player.PowerLevel} ({player.Character})");
-                        Console.WriteLine($"     - Other DPS: {player.OtherCharacters}");
-                        Console.WriteLine($"     - Summon Bonus (Max {Math.Round((player.SummonMaxLevel / 10.0), 2)}): {player.SummonModifier}");
-                        Console.WriteLine($"     - E.S. Bonus (Max .25): {player.EnemySkillModifier}");
-                        Console.WriteLine($"     - Support Bonus: {player.SupportModifier} ({player.SupportModifierDetails})");
+                        //Console.WriteLine($"     - Other DPS: {player.OtherCharacters}");
+                        //Console.WriteLine($"     - Summon Bonus (Max {Math.Round((player.SummonMaxLevel / 10.0), 2)}): {player.SummonModifier}");
+                        //Console.WriteLine($"     - E.S. Bonus (Max .25): {player.EnemySkillModifier}");
+                        //Console.WriteLine($"     - Support Bonus: {player.SupportModifier} ({player.SupportModifierDetails})");
                         counter++;
                     }
                 }

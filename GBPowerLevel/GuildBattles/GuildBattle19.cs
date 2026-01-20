@@ -212,7 +212,7 @@ namespace GBPowerLevel.GuildBattles
 
             if (PhoenixOdachi.IsOwned() && LimitedMoon.IsOwned())
             {
-                multiplier += PhoenixOdachi.GetMultipler(0.08, 0.5, 0.9);
+                multiplier += PhoenixOdachi.GetMultipler(0.08, 0.5, 1.0);
             }
             else
             {
@@ -222,7 +222,7 @@ namespace GBPowerLevel.GuildBattles
                 }
                 else
                 {
-                    multiplier += BladeoftheWorthy.GetMultipler(0.1, 0.2, 0.3);
+                    multiplier += BladeoftheWorthy.GetMultipler(0.1, 0.2, 0.4);
                 }
             }
 
