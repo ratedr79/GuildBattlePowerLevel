@@ -88,7 +88,7 @@ namespace GBPowerLevel.GuildBattles
 
             if (CorruptorofthePlanet.IsOwned())
             {
-                characterLevel += 150;
+                characterLevel += 110;
             }
 
             if (OnewiththeBlade.IsOwned())
@@ -110,18 +110,22 @@ namespace GBPowerLevel.GuildBattles
                 }
             }
 
-            if (Shiranui.IsOwned())
-            {
-                multiplier += Shiranui.GetMultipler(0.2, 0.6, 0.7);
+            var weaponCount = 0;
 
-                if (Muramasa.IsOwned())
-                {
-                    multiplier += Muramasa.GetMultipler(0.3, 0.5, 0.9);
-                }
-                else
-                {
-                    multiplier += Kikuichimonji.GetMultipler(0.3, 0.5, 0.9);
-                }
+            if (weaponCount < 2 && Shiranui.IsOwned())
+            {
+                multiplier += Shiranui.GetMultipler(0.3, 0.5, 0.9);
+                weaponCount++;
+            }
+
+            if (weaponCount < 2 && Muramasa.IsOwned())
+            {
+                multiplier += Muramasa.GetMultipler(0.25, 0.35, 0.5);
+            }
+
+            if (weaponCount < 2 && Kikuichimonji.IsOwned())
+            {
+                multiplier += Kikuichimonji.GetMultipler(0.2, 0.3, 0.4);
             }
 
             return characterLevel * (multiplier + 1);
@@ -130,49 +134,37 @@ namespace GBPowerLevel.GuildBattles
         public double TifaPowerLevel()
         {
             double characterLevel = 225.0;
-
-            if (GoldenFlowerKimono.IsOwned())
-            {
-                characterLevel += 175;
-            }
-
-            if (PassionMermaid.IsOwned())
-            {
-                characterLevel += 150;
-            }
-
-            if (BattlerEnsemble.IsOwned())
-            {
-                characterLevel += 125;
-            }
-
             var outfitCount = 0;
 
             if (GoldenFlowerKimono.IsOwned())
-                outfitCount++;
-
-            if (BattlerEnsemble.IsOwned())
-                outfitCount++;
-
-            if (PassionMermaid.IsOwned())
-                outfitCount++;
-
-            if (outfitCount < 3)
             {
-                if (ACStyle.IsOwned())
-                {
-                    characterLevel += 125;
-                    outfitCount++;
-                }
+                characterLevel += 150;
+                outfitCount++;
             }
 
-            if (outfitCount < 3)
+            if (PassionMermaid.IsOwned())
             {
-                if (FestiveBlueDaffodilAttire.IsOwned())
-                {
-                    characterLevel += 125;
-                    outfitCount++;
-                }
+                characterLevel += 125;
+                outfitCount++;
+            }
+
+            if (BattlerEnsemble.IsOwned())
+            {
+                characterLevel += 100;
+                outfitCount++;
+            }
+
+
+            if (outfitCount < 3 && ACStyle.IsOwned())
+            {
+                characterLevel += 100;
+                outfitCount++;
+            }
+
+            if (outfitCount < 3 && FestiveBlueDaffodilAttire.IsOwned())
+            {
+                characterLevel += 100;
+                outfitCount++;
             }
 
             double multiplier = BaseMultipler();
@@ -739,7 +731,7 @@ namespace GBPowerLevel.GuildBattles
 
                     foreach (var player in playerPowerLevels.OrderByDescending(l => l.PowerLevel))
                     {
-                        Console.WriteLine($"{counter}: {player.InGameName} ({player.CurrentGuild}) - {player.PowerLevel} ({player.Character})");
+                        Console.WriteLine($"{counter}: {player.InGameName} ({player.CurrentGuild}) - {player.PowerLevel} ({player.Character}, {player.HighestSupport})");
                         counter++;
                     }
 
