@@ -1,10 +1,13 @@
-﻿using CsvHelper.Configuration;
+﻿using CsvHelper;
+using CsvHelper.Configuration;
 using GBPowerLevel.Extensions;
+using GBPowerLevel.Interfaces;
+using System.Globalization;
 using System.Text;
 
 namespace GBPowerLevel.GuildBattles
 {
-    public class GuildBattle19
+    public class GuildBattle19 : IGuildBattle
     {
         public double SummonMaxLevel { get { return 10; } }
 
@@ -51,6 +54,8 @@ namespace GBPowerLevel.GuildBattles
         public string Odin_Zantetsuken { get; set; }
         public string MemoriaoftheStallionofGoodFortune { get; set; }
         public string LightningArmyofOne { get; set; }
+        public string HeavyShieldArmor { get; set; }
+        public string BatteringSword { get; set; }
 
         public double CloudPowerLevel()
         {
@@ -229,6 +234,50 @@ namespace GBPowerLevel.GuildBattles
             return characterLevel * (multiplier + 1);
         }
 
+        public double ZackPowerLevel()
+        {
+            double characterLevel = 225.0;
+
+            if (HeavyShieldArmor.IsOwned())
+            {
+                characterLevel += 300;
+            }
+
+            var swordLevel = BatteringSword.OnlyNumbers();
+
+            if (!string.IsNullOrEmpty(swordLevel) && int.Parse(swordLevel) > 9)
+            {
+                characterLevel += 325;
+            }
+            else if (!string.IsNullOrEmpty(swordLevel) && int.Parse(swordLevel) > 5)
+            {
+                characterLevel += 250;
+            }
+            else if (!string.IsNullOrEmpty(swordLevel) && int.Parse(swordLevel) > 0)
+            {
+                characterLevel += 100;
+            }
+
+            double multiplier = BaseMultipler();
+
+            multiplier += BatteringSword.GetMultipler(0.4, 0.8, 1.2);
+
+            if (!string.IsNullOrEmpty(swordLevel) && int.Parse(swordLevel) >= 0)
+            {
+                if (LimitedMoon.IsOwned())
+                {
+                    multiplier += 0.1;
+                }
+                else
+                {
+                    //We'll just guess they have his WEX sword
+                    multiplier += 0.3;
+                }
+            }
+
+            return characterLevel * (multiplier + 1);
+        }
+
         public List<DPSPowerLevel> DPSPowerLevels()
         {
             var dpsPowerLevels = new List<DPSPowerLevel>()
@@ -244,6 +293,10 @@ namespace GBPowerLevel.GuildBattles
                 new DPSPowerLevel() {
                     Character = "Yuffie",
                     PowerLevel = YuffiePowerLevel()
+                },
+                new DPSPowerLevel() {
+                    Character = "Zack",
+                    PowerLevel = ZackPowerLevel()
                 }
             };
 
@@ -437,6 +490,79 @@ namespace GBPowerLevel.GuildBattles
 
             return multiplier;
         }
+
+        public void GetOutput(string _csvPath)
+        {
+            if (File.Exists(_csvPath))
+            {
+                List<PlayerPowerLevel> playerPowerLevels = new List<PlayerPowerLevel>();
+
+                var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+                {
+                    NewLine = Environment.NewLine,
+                    Encoding = Encoding.UTF8,
+                    HasHeaderRecord = true,
+                };
+
+                using (var reader = new StreamReader(_csvPath))
+                using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+                {
+                    csv.Context.RegisterClassMap<GuildBattle19ClassMap>();
+                    var records = csv.GetRecords<GuildBattle19>();
+
+                    foreach (var record in records)
+                    {
+                        var detail = $"{record.In_GameName}: {record.HighestPowerDPS()} (Yuffie: {record.YuffiePowerLevel()}; Cloud: {record.CloudPowerLevel()}; Sephiroth: {record.SephirothPowerLevel()}; Zack: {record.ZackPowerLevel()})";
+                        Console.WriteLine(detail);
+
+                        var highestDPS = record.HighestPowerDPS();
+
+                        playerPowerLevels.Add(new PlayerPowerLevel()
+                        {
+                            InGameName = record.In_GameName,
+                            PowerLevel = Math.Round(highestDPS.PowerLevel, 2),
+                            Character = highestDPS.Character,
+                            OtherCharacters = record.OtherDPSFormatted(),
+                            CurrentGuild = record.YourGuild,
+                            SummonModifier = record.SummonMultiplier(),
+                            EnemySkillModifier = record.EnemySkillMultiplier(),
+                            SupportModifier = record.GetSupportMultipler(),
+                            SupportModifierDetails = record.GetSupportModifierDetails(),
+                            SummonMaxLevel = record.SummonMaxLevel
+                        });
+                    }
+
+                    Console.WriteLine("");
+                    Console.WriteLine("Sorted Players by Power Level");
+
+                    var counter = 1;
+
+                    foreach (var player in playerPowerLevels.OrderByDescending(l => l.PowerLevel))
+                    {
+                        Console.WriteLine($"{counter}: {player.InGameName} ({player.CurrentGuild}) - {player.PowerLevel} ({player.Character})");
+                        //Console.WriteLine($"     - Other DPS: {player.OtherCharacters}");
+                        //Console.WriteLine($"     - Summon Bonus (Max {Math.Round((player.SummonMaxLevel / 10.0), 2)}): {player.SummonModifier}");
+                        //Console.WriteLine($"     - E.S. Bonus (Max .25): {player.EnemySkillModifier}");
+                        //Console.WriteLine($"     - Support Bonus: {player.SupportModifier} ({player.SupportModifierDetails})");
+                        counter++;
+                    }
+
+                    Console.WriteLine("");
+                    Console.WriteLine("");
+                    counter = 1;
+
+                    foreach (var player in playerPowerLevels.OrderByDescending(l => l.PowerLevel))
+                    {
+                        Console.WriteLine($"{counter}: {player.InGameName} ({player.CurrentGuild}) - {player.PowerLevel} ({player.Character})");
+                        Console.WriteLine($"     - Other DPS: {player.OtherCharacters}");
+                        Console.WriteLine($"     - Summon Bonus (Max {Math.Round((player.SummonMaxLevel / 10.0), 2)}): {player.SummonModifier}");
+                        Console.WriteLine($"     - E.S. Bonus (Max .25): {player.EnemySkillModifier}");
+                        Console.WriteLine($"     - Support Bonus: {player.SupportModifier} ({player.SupportModifierDetails})");
+                        counter++;
+                    }
+                }
+            }
+        }
     }
 
     public class GuildBattle19ClassMap : ClassMap<GuildBattle19>
@@ -486,6 +612,8 @@ namespace GBPowerLevel.GuildBattles
             Map(m => m.Odin_Zantetsuken).Name("Odin - Zantetsuken");
             Map(m => m.MemoriaoftheStallionofGoodFortune).Name("Memoria of the Stallion of Good Fortune");
             Map(m => m.LightningArmyofOne).Name("Lightning: Army of One");
+            Map(m => m.HeavyShieldArmor).Name("Zack Outfit");
+            Map(m => m.BatteringSword).Name("Zack Weapon");
         }
     }
 }

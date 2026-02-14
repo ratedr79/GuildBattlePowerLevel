@@ -9,6 +9,7 @@ namespace GBPowerLevel
         public string InGameName { get; set; }
         public string Character { get; set; }
         public double PowerLevel { get; set; }
+        public string HighestDPS { get; set; }
         public string OtherCharacters { get; set; }
         public string CurrentGuild { get; set; }
         public double SummonModifier { get; set; }
@@ -16,5 +17,8 @@ namespace GBPowerLevel
         public double SupportModifier { get; set; }
         public string SupportModifierDetails { get; set; }
         public double SummonMaxLevel { get; set; }
+        public double EnemySkillMaxLevel { get; set; }
+        public string HighestSupport { get; set; }
+        public double MateriaModifier { get; set; }
     }
 }

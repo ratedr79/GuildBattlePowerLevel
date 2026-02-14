@@ -7,7 +7,11 @@ namespace GBPowerLevel.Extensions
     {
         public static string OnlyNumbers(this string value)
         {
-            if (value == "5 Star")
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return "";
+            }
+            else if (value == "5 Star")
             {
                 return "0";
             }
@@ -46,7 +50,11 @@ namespace GBPowerLevel.Extensions
 
         public static bool IsOwned(this string value)
         {
-            if (value.ToLower().Trim() == "own")
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return false;
+            }
+            else if (value.ToLower().Trim() == "own")
             {
                 return true;
             }
